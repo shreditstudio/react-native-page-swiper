@@ -19,6 +19,7 @@ export default class Swiper extends Component {
     pager: PropTypes.bool,
     onPageChange: PropTypes.func,
     activeDotColor: PropTypes.string,
+    swipeEnabled: PropTypes.bool
   };
 
   static defaultProps = {
@@ -27,6 +28,7 @@ export default class Swiper extends Component {
     threshold: 25,
     onPageChange: () => {},
     activeDotColor: 'blue',
+    swipeEnabled: true
   };
 
   constructor(props) {
@@ -55,35 +57,37 @@ export default class Swiper extends Component {
       this.goToPage(newIndex);
     };
 
-    this._panResponder = PanResponder.create({
-      onMoveShouldSetPanResponder: (e, gestureState) => {
-        const { threshold } = this.props;
+    if (this.props.swipeEnabled) {
+      this._panResponder = PanResponder.create({
+        onMoveShouldSetPanResponder: (e, gestureState) => {
+          const { threshold } = this.props;
 
-        // Claim responder if it's a horizontal pan
-        if (Math.abs(gestureState.dx) > Math.abs(gestureState.dy)) {
-          return true;
+          // Claim responder if it's a horizontal pan
+          if (Math.abs(gestureState.dx) > Math.abs(gestureState.dy)) {
+            return true;
+          }
+
+          // and only if it exceeds the threshold
+          if (threshold - Math.abs(gestureState.dx) > 0) {
+            return false;
+          }
+
+        },
+
+        // Touch is released, scroll to the one that you're closest to
+        onPanResponderRelease: release,
+        onPanResponderTerminate: release,
+
+
+        // Dragging, move the view with the touch
+        onPanResponderMove: (e, gestureState) => {
+          let dx = gestureState.dx;
+          let offsetX = -dx / this.state.viewWidth + this.state.index;
+
+          this.state.scrollValue.setValue(offsetX);
         }
-
-        // and only if it exceeds the threshold
-        if (threshold - Math.abs(gestureState.dx) > 0) {
-          return false;
-        }
-
-      },
-
-      // Touch is released, scroll to the one that you're closest to
-      onPanResponderRelease: release,
-      onPanResponderTerminate: release,
-
-
-      // Dragging, move the view with the touch
-      onPanResponderMove: (e, gestureState) => {
-        let dx = gestureState.dx;
-        let offsetX = -dx / this.state.viewWidth + this.state.index;
-
-        this.state.scrollValue.setValue(offsetX);
-      }
-    });
+      });
+    }
   }
 
   goToPage(pageNumber) {
@@ -124,7 +128,7 @@ export default class Swiper extends Component {
     return (
       <View onLayout={ this.handleLayout.bind(this) } style={ { flex: 1, overflow: 'hidden' } }>
         <Animated.View
-          {...this._panResponder.panHandlers}
+          {...this._panResponder && this._panResponder.panHandlers}
           style={ [sceneContainerStyle, { transform: [{ translateX }] }] }
         >
           { scenes }
