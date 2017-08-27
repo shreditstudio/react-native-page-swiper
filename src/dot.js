@@ -1,13 +1,14 @@
 'use strict';
 
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { View } from 'react-native';
 
 export default class Dot extends Component {
   static propTypes = {
-    color: React.PropTypes.string,
-    diameter: React.PropTypes.number,
-    style: View.propTypes.style,
+    color: PropTypes.string,
+    diameter: PropTypes.number,
+    style: PropTypes.any,
   };
 
   static defaultProps = {
