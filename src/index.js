@@ -41,7 +41,7 @@ export default class Swiper extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const release = (e, gestureState) => {
       const relativeGestureDistance = gestureState.dx / this.state.viewWidth;
       const { vx } = gestureState;
